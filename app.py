@@ -1,5 +1,5 @@
 import streamlit as st
-from pawpal_system import Task, Pet, Owner, Scheduler
+from pawpal_system import Task, Pet, Owner, Scheduler, RecommendationAgent
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -90,6 +90,15 @@ if "pet" in st.session_state:
             st.write(task.get_summary())
     else:
         st.info("No tasks yet. Add one above.")
+
+    st.markdown("### Recommendations")
+    if st.button("Get Recommendations"):
+        agent = RecommendationAgent()
+        recs = agent.recommend_tasks(pet, pet.tasks)
+        st.write("### Recommended Future Tasks:")
+        for rec in recs:
+            st.write(f"- {rec}")
+
 else:
     st.info("Create an owner and pet first.")
 

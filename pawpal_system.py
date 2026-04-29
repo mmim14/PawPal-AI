@@ -16,8 +16,7 @@ class Task:
         self.date = date
         self.notes = notes
         self.status = status
-        # for recurring tasks like feeding, medication, etc
-        self.frequency = frequency
+        self.frequency = frequency  # for recurring tasks like feeding, medication, etc
         self.duration = duration
         self.priority = priority
 
@@ -191,6 +190,33 @@ class Scheduler:
         pet.tasks.append(task)
         print(f"Scheduled: [WALKS] {pet.name} | {time} | {frequency} | {duration} mins")
 
-    def _has_conflict(self, pet, date):
-        """Return True if the pet already has a task scheduled at the given date."""
-        return any(task.date == date for task in pet.tasks)
+class RecommendationAgent:
+    """Agent that analyzes pet and existing tasks to recommend future tasks for better care."""
+
+    def recommend_tasks(self, pet, existing_tasks):
+        """Analyze pet profile and tasks, return a list of recommended task descriptions."""
+        recommendations = []
+        task_types = {task.task_type for task in existing_tasks}
+
+        # Rule-based recommendations
+        if pet.species.lower() == "dog" and "walks" not in task_types:
+            recommendations.append("Add daily walks to keep your dog active and healthy.")
+
+        if pet.age > 5 and "vet" not in task_types:
+            recommendations.append("Schedule a vet checkup for your senior pet.")
+
+        if "feeding" not in task_types:
+            recommendations.append("Set up a regular feeding schedule.")
+
+        if pet.species.lower() == "cat" and "grooming" not in task_types:
+            recommendations.append("Consider grooming sessions for your cat's fur care.")
+
+        if "medication" not in task_types and pet.medical_notes:
+            recommendations.append("Review and schedule any needed medications based on medical notes.")
+
+        # If no recommendations, suggest general care
+        if not recommendations:
+            recommendations.append("Your pet's care looks comprehensive! Consider enrichment activities.")
+
+        return recommendations
+
