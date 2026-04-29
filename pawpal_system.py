@@ -1,17 +1,24 @@
-VALID_TASK_TYPES = {"feeding", "vet", "grooming"}
+VALID_TASK_TYPES = {"feeding", "vet", "grooming", "medication", "walks"}
 
 
 class Task:
-    def __init__(self, task_type, pet, date, notes="", status="pending", frequency=None):
+    VALID_PRIORITIES = {"low", "medium", "high"}
+
+    def __init__(self, task_type, pet, date, notes="", status="pending", frequency=None, duration=None, priority="medium"):
         """Create a task for a pet with a type, date, and optional notes."""
         if task_type not in VALID_TASK_TYPES:
             raise ValueError(f"task_type must be one of {VALID_TASK_TYPES}")
+        if priority not in self.VALID_PRIORITIES:
+            raise ValueError(f"priority must be one of {self.VALID_PRIORITIES}")
+
         self.task_type = task_type
         self.pet = pet
         self.date = date
         self.notes = notes
         self.status = status
-        self.frequency = frequency  # only relevant for feeding tasks
+        self.frequency = frequency  # for recurring tasks like feeding, medication, etc
+        self.duration = duration
+        self.priority = priority
 
     def mark_complete(self):
         """Mark this task as completed and print a confirmation."""
@@ -24,6 +31,8 @@ class Task:
             f"[{self.task_type.upper()}] {self.pet.name} | {self.date}"
             + (f" | {self.notes}" if self.notes else "")
             + (f" | {self.frequency}" if self.frequency else "")
+            + (f" | Duration: {self.duration} mins" if self.duration is not None else "")
+            + f" | Priority: {self.priority}"
             + f" | Status: {self.status}"
         )
 
@@ -76,10 +85,7 @@ class Owner:
         """Print all tasks across every pet owned by this owner."""
         for pet in self.pets:
             for task in pet.tasks:
-                print(f"[{task.task_type.upper()}] {pet.name} | {task.date}"
-                      + (f" | {task.notes}" if task.notes else "")
-                      + (f" | {task.frequency}" if task.frequency else "")
-                      + f" | Status: {task.status}")
+                print(task.get_summary())
 
 
 class Scheduler:
@@ -96,34 +102,80 @@ class Scheduler:
             if task.task_type == task_type
         ]
         for task in matches:
-            print(f"[{task.task_type.upper()}] {task.pet.name} | {task.date}"
-                  + (f" | {task.notes}" if task.notes else "")
-                  + (f" | {task.frequency}" if task.frequency else "")
-                  + f" | Status: {task.status}")
+            print(task.get_summary())
 
-    def schedule_feeding_time(self, pet, time, frequency):
+    def schedule_feeding_time(self, pet, time, frequency, duration=None, priority="medium"):
         """Create and assign a recurring feeding task to the given pet."""
-        task = Task(task_type="feeding", pet=pet, date=time, frequency=frequency)
+        task = Task(
+            task_type="feeding",
+            pet=pet,
+            date=time,
+            frequency=frequency,
+            duration=duration,
+            priority=priority,
+        )
         pet.tasks.append(task)
         print(f"Scheduled: [FEEDING] {pet.name} | {time} | {frequency}")
 
-    def schedule_vet_appointment(self, pet, date, clinic):
+    def schedule_vet_appointment(self, pet, date, clinic, duration=None, priority="medium"):
         """Create and assign a vet appointment task, blocking on date conflicts."""
         if self._has_conflict(pet, date):
             print(f"Conflict: {pet.name} already has a task on {date}")
             return
-        task = Task(task_type="vet", pet=pet, date=date, notes=clinic)
+        task = Task(
+            task_type="vet",
+            pet=pet,
+            date=date,
+            notes=clinic,
+            duration=duration,
+            priority=priority,
+        )
         pet.tasks.append(task)
         print(f"Scheduled: [VET] {pet.name} | {date} | {clinic}")
 
-    def schedule_grooming_appointment(self, pet, date, groomer):
+    def schedule_grooming_appointment(self, pet, date, groomer, duration=None, priority="medium"):
         """Create and assign a grooming appointment task, blocking on date conflicts."""
         if self._has_conflict(pet, date):
             print(f"Conflict: {pet.name} already has a task on {date}")
             return
-        task = Task(task_type="grooming", pet=pet, date=date, notes=groomer)
+        task = Task(
+            task_type="grooming",
+            pet=pet,
+            date=date,
+            notes=groomer,
+            duration=duration,
+            priority=priority,
+        )
         pet.tasks.append(task)
         print(f"Scheduled: [GROOMING] {pet.name} | {date} | {groomer}")
+
+    def schedule_medication(self, pet, time, frequency, dosage, duration=None, priority="medium"):
+        """Create and assign a recurring medication task to the given pet."""
+        task = Task(
+            task_type="medication",
+            pet=pet,
+            date=time,
+            frequency=frequency,
+            notes=dosage,
+            duration=duration,
+            priority=priority,
+        )
+        pet.tasks.append(task)
+        print(f"Scheduled: [MEDICATION] {pet.name} | {time} | {frequency} | {dosage}")
+
+    def schedule_walk(self, pet, time, duration, frequency, notes="", priority="medium"):
+        """Create and assign a recurring walk task to the given pet."""
+        task = Task(
+            task_type="walks",
+            pet=pet,
+            date=time,
+            notes=notes,
+            frequency=frequency,
+            duration=duration,
+            priority=priority,
+        )
+        pet.tasks.append(task)
+        print(f"Scheduled: [WALKS] {pet.name} | {time} | {frequency} | {duration} mins")
 
     def _has_conflict(self, pet, date):
         """Return True if the pet already has a task scheduled at the given date."""
