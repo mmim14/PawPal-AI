@@ -1,6 +1,8 @@
-# PawPal+ (Module 2 Project)
+# PawPal-AI (Final Project)
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+The original app **PawPal+** is a Streamlit app that helps a pet owner plan care tasks for their pet. 
+
+I am going to have AI recommend feeding schedule and suggest next vet or grooming appointment based on the pet care history and perhaps from what’s recommended by verterinarian based on research using *agentic AI*. This satisfies the requirement ‘plan and complete a step-by-step task
 
 ## Scenario
 
