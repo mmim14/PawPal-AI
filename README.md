@@ -43,3 +43,16 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+Final Project Extension:
+
+# UML Diagram:
+![alt text](image-4.png)
+
+I implemented many features that I didn't implement before. I made the pawpal_system.py more robust and linked its integration with streamlit UI. 
+
+
+I added a recommendation agent based on simple rule-based system to recommend future tasks for better pet care. 
+
+# Recording
+https://www.loom.com/share/e8f7d4515c324c90bce4a50d7d5a9e33
