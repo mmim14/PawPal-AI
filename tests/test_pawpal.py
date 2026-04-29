@@ -57,3 +57,23 @@ def test_schedule_walk_sets_duration_and_priority():
     assert task.task_type == "walks"
     assert task.duration == 30
     assert task.priority == "low"
+
+
+def test_schedule_vet_appointment_accepts_frequency():
+    owner = Owner("Mimi")
+    bella = Pet("Bella", "Dog", "Labrador", 3, "Female")
+    owner.add_pet(bella)
+    owner.scheduler.schedule_vet_appointment(
+        bella,
+        "2026-05-03 10:00",
+        clinic="Main Street Vet",
+        frequency="annual",
+        duration=60,
+        priority="high",
+    )
+    assert bella.task_count == 1
+    task = bella.tasks[0]
+    assert task.task_type == "vet"
+    assert task.frequency == "annual"
+    assert task.duration == 60
+    assert task.priority == "high"
